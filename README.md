@@ -1,1 +1,1 @@
-# CIT-Hackathon-2026
+# CIT-CS-Hackathon-2026
