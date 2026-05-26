@@ -1,7 +1,3 @@
-/**
- * 役割: オーディオ出力の波形を描画
- * 規約: {対象}View
- */
 class WaveformView {
   AudioOutput targetOut;
   
