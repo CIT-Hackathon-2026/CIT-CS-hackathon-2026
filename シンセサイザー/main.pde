@@ -7,7 +7,6 @@ AudioOutput out;
 Waveform synthWavetable;
 Serial serialPort;
 
-// 新しく作った管理・描画クラスのインスタンス
 SerialManager serialManager;
 WaveformView  waveformView;
 
@@ -18,7 +17,6 @@ void setup() {
   
   synthWavetable = WavetableGenerator.gen10(4096, SYNTH_HARMONICS);
   
-  // 描画ビューと通信マネージャーの準備
   waveformView = new WaveformView(out);
   serialManager = new SerialManager();
 
@@ -29,14 +27,12 @@ void setup() {
 
 void draw() {
   background(0);
-  // 波形の描画をViewクラスに任せる
   waveformView.display();
 }
 
 void serialEvent(Serial port) {
   String inString = port.readStringUntil('\n');
   if (inString != null) {
-    // データの処理をManagerクラスに任せる
     serialManager.processInput(trim(inString));
   }
 }

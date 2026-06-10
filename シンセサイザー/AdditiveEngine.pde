@@ -1,7 +1,3 @@
-/**
- * 役割: 複数のオシレーターを組み合わせた音源の生成
- * 規約: {手法}Engine
- */
 class AdditiveEngine {
   Summer mixer;
   Oscil wave1, wave2, wave3, tremoloOsc;
@@ -22,7 +18,6 @@ class AdditiveEngine {
     wave3.patch(mixer);
   }
   
-  // エンジンで作った音を外（フィルター等）に繋ぐためのメソッド
   UGen getOutput() {
     return mixer;
   }
