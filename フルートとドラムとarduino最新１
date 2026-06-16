@@ -1,0 +1,329 @@
+AdditiveEngine.pde
+
+
+class AdditiveEngine {
+  Oscil wave;
+  Oscil vibrato;
+
+  AdditiveEngine(float freq, Waveform wf) {
+    wave = new Oscil(freq, 1.0f, wf);
+
+    vibrato = new Oscil(VIBRATO_FREQ, VIBRATO_AMP, Waves.SINE);
+    vibrato.offset.setLastValue(freq);
+    vibrato.patch(wave.frequency);
+  }
+
+  UGen getOutput() {
+    return wave;
+  }
+}
+
+
+
+Constants.pde
+
+// =======================================================
+// オリジナル・フルート音色定数設定 (1次〜6次倍音)
+// =======================================================
+
+// 倍音目安（このスケッチ内で唯一の定義）
+final float[] FLUTE_HARMONICS = {
+  1.000f, // 1次 (f)
+  0.400f, // 2次 (2f)
+  0.150f, // 3次 (3f)
+  0.070f, // 4次 (4f)
+  0.030f, // 5次 (5f)
+  0.015f  // 6次 (6f)
+};
+
+// ADSR
+final float FLUTE_ATK = 0.15f;
+final float FLUTE_DEC = 0.30f;
+final float FLUTE_SUS = 0.90f;
+final float FLUTE_REL = 0.25f;
+
+// ビブラート設定
+final float VIBRATO_FREQ = 5.0f;
+final float VIBRATO_AMP  = 3.0f;
+
+
+main.pde
+
+
+
+import ddf.minim.*;
+import ddf.minim.ugens.*;
+import processing.serial.*;
+
+Minim minim;
+AudioOutput out;
+Waveform fluteWavetable;
+Serial serialPort;
+
+SerialManager serialManager;
+
+// ←自分の環境のポート名に書き換える（下のリスト出力を参照）
+String PORT_NAME = "/dev/cu.usbmodem34B7DA643AE82";
+
+// ※ 倍音配列は Constants.pde に一本化（二重定義を解消）
+
+void setup() {
+  size(300, 200);
+  minim = new Minim(this);
+  out = minim.getLineOut(Minim.MONO, 512);
+
+  // 1〜6次倍音の手動合成
+  int tableSize = 1024;
+  float[] waveBuffer = new float[tableSize];
+  for (int i = 0; i < tableSize; i++) {
+    float totalAmp = 0;
+    float fraction = (float)i / tableSize;
+    for (int h = 0; h < FLUTE_HARMONICS.length; h++) {
+      int harmonicOrder = h + 1;
+      float amplitude = FLUTE_HARMONICS[h];
+      totalAmp += amplitude * sin(fraction * TWO_PI * harmonicOrder);
+    }
+    waveBuffer[i] = totalAmp;
+  }
+  fluteWavetable = new Wavetable(waveBuffer);
+
+  serialManager = new SerialManager();
+
+  println("利用可能なシリアルポート:");
+  printArray(Serial.list());
+
+  // シリアルポートを安全に開く（失敗してもクラッシュしない）
+  try {
+    serialPort = new Serial(this, PORT_NAME, 9600);
+    serialPort.bufferUntil('\n');
+    serialPort.clear();
+    serialPort.write('S'); // Arduinoに演奏開始の合図
+    println("シリアル接続成功: " + PORT_NAME);
+  } catch (Exception e) {
+    serialPort = null;
+    println("シリアルポートを開けませんでした: " + PORT_NAME);
+    println("上のリストから正しいポート名を選び、PORT_NAME を書き換えてください。");
+  }
+}
+
+void draw() {
+  background(40);
+  fill(255);
+  textAlign(CENTER, CENTER);
+  if (serialPort != null) {
+    text("Flute System: Playing...", width/2, height/2);
+  } else {
+    text("No Serial Port\n(see console)", width/2, height/2);
+  }
+}
+
+void serialEvent(Serial port) {
+  String s = port.readStringUntil('\n');
+  if (s != null) {
+    serialManager.processInput(trim(s));
+  }
+}
+
+// Processing 3/4 では stop() ではなく dispose() を使う
+void dispose() {
+  if (out != null) out.close();
+  if (minim != null) minim.stop();
+  super.dispose();
+}
+
+
+
+
+
+MyFlute.pde
+
+
+  
+class FluteVoice implements Instrument {
+  AdditiveEngine engine;
+  ADSR adsr;
+
+  FluteVoice(float freq, float maxAmp, Waveform wf) {
+    engine = new AdditiveEngine(freq, wf);
+
+    adsr = new ADSR(maxAmp,
+                    FLUTE_ATK, FLUTE_DEC,
+                    FLUTE_SUS, FLUTE_REL);
+
+    engine.getOutput().patch(adsr);
+  }
+
+  void noteOn(float d) {
+    adsr.patch(out);
+    adsr.noteOn();
+  }
+
+  void noteOff() {
+    adsr.noteOff();
+    adsr.unpatchAfterRelease(out);
+  }
+}
+
+
+
+
+
+SerialManager.pde
+
+
+class SerialManager {
+  SerialManager() {}
+
+  void processInput(String data) {
+    String[] d = split(data, ',');
+    if (d.length == 3) {
+      float dur = float(d[0]);
+      float amp = float(d[1]);
+      String pitch = trim(d[2]);
+
+      // 休符や音量0は再生しない（Frequency.ofPitch("REST")が例外を投げるため）
+      if (pitch.equals("REST") || amp <= 0.0f || dur <= 0.0f) {
+        return;
+      }
+
+      float freq = Frequency.ofPitch(pitch).asHz();
+      out.playNote(0.0f, dur, new FluteVoice(freq, amp, fluteWavetable));
+    }
+  }
+
+
+
+
+
+
+
+#include "Arduino_LED_Matrix.h"
+
+// ===== フォトダイオード（トリガー側：ubukata）=====
+int V_up = 12;   // LED点灯の閾値
+int V_down = 5; // LED消灯の閾値
+const int s_PIN = A0; // フォトダイオードをつなぐピン
+int sensor = 0;       // フォトダイオードで読み取った値
+bool isHighState;        // LEDの状態
+bool before_isHighState; // 前回のLEDの状態
+
+unsigned long before_time = 0;
+unsigned long interval = 0;
+
+// ===== Processingへ送る音データ（送信内容：HACK）=====
+// カエルの歌（音名）- 休符は "REST"
+const String MELODY[] = {
+  "C4","D4","E4","F4","E4","D4","C4", "REST", // カエルのうたが
+  "E4","F4","G4","A4","G4","F4","E4", "REST", // きこえてくるよ
+  "C4", "REST","C4", "REST","C4", "REST","C4", "REST", // クワ クワ クワ クワ
+  "C4","C4","D4","D4","E4","E4","F4","F4","E4","D4","C4" // ケケケケ...
+};
+
+// 実際に音が鳴っている長さ（秒）
+const float ACTUAL_PLAYS[] = {
+  0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.0, // "REST" は発音時間 0.0 秒
+  0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.0,
+  0.3, 0.0, 0.3, 0.0, 0.3, 0.0, 0.3, 0.0,
+  0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.7, 0.7, 0.7
+};
+
+// 音量（0.0〜1.0）
+const float AMPLITUDES[] = {
+  0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.0, // "REST" は音量 0.0
+  0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.0,
+  0.9, 0.0, 0.9, 0.0, 0.9, 0.0, 0.9, 0.0,
+  0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8
+};
+
+// 3配列のうち最も短い長さに合わせて1周させる（配列外アクセス防止）
+int noteIndex = 0;
+int numNotes;  // setup内で算出
+
+// ===== LEDマトリクス =====
+ArduinoLEDMatrix matrix;
+byte ok [8][12] = {
+  {0,0,0,0,0,0,0,0,0,0,0,0},
+  {0, 0, 1, 1, 1, 0, 0, 1, 0,0,1,0},
+  {0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0},
+  {0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0},
+  {0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0},
+  {0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0},
+  {0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0},
+  {0,0,0,0,0,0,0,0,0,0,0,0}
+}; // LEDマトリクスに「ok」を表示
+
+// 各配列の要素数の最小値を求める
+int minArrayLength() {
+  int lenMelody = sizeof(MELODY)      / sizeof(MELODY[0]);
+  int lenPlays  = sizeof(ACTUAL_PLAYS)/ sizeof(ACTUAL_PLAYS[0]);
+  int lenAmps   = sizeof(AMPLITUDES)  / sizeof(AMPLITUDES[0]);
+
+  int m = lenMelody;
+  if (lenPlays < m) m = lenPlays;
+  if (lenAmps  < m) m = lenAmps;
+  return m;
+}
+
+// Processingへ1音ぶんのCSVを送信する（HACKの送信フォーマット）
+void sendNote() {
+  Serial.print(ACTUAL_PLAYS[noteIndex]);
+  Serial.print(",");
+  Serial.print(AMPLITUDES[noteIndex]);
+  Serial.print(",");
+  Serial.println(MELODY[noteIndex]);
+
+  noteIndex++;
+  if (noteIndex >= numNotes) {
+    noteIndex = 0;
+  }
+}
+
+void setup() {
+  Serial.begin(9600);
+  matrix.begin();
+
+  numNotes = minArrayLength();
+
+  sensor = analogRead(s_PIN);
+  if (sensor >= V_up) {
+    isHighState = true;
+  } else {
+    isHighState = false;
+  }
+  before_isHighState = isHighState;
+}
+
+void loop() {
+  sensor = analogRead(s_PIN);
+  // Serial.println(sensor); // デバッグ用。送信フォーマットと混ざるので通常はコメントアウト
+
+  if (sensor >= V_up) {
+    isHighState = true;
+  }
+  if (sensor <= V_down) {
+    isHighState = false;
+  }
+
+  // フォトダイオードの状態が切り替わった瞬間をトリガーにする（ubukata）
+  if (before_isHighState != isHighState) {
+    unsigned long now = millis();
+    interval = now - before_time;
+
+    if (interval > 20) {
+      sendNote();                     // 中身はHACKのCSV送信（1音ずつ）
+    } else {
+      matrix.renderBitmap(ok, 8, 12); // 速すぎる切り替わりは「ok」表示
+    }
+
+    before_isHighState = isHighState;
+    before_time = now;
+  }
+
+  delay(5);
+}
+}
+
+
+
+
+
