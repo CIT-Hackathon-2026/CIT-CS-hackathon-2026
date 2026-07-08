@@ -1,0 +1,96 @@
+\section{システムの動作確認}
+
+3種類の伝達システムを結合して文字が正確に一定以上の速度で送られるかを確認するための動作確認を行った.
+動作確認の方法は1つ目のシステムである音のシリアルモニタにchibaという文字列を入力し,各システムでどのような文字がどれくらいの速度で送られるか計測するものである.
+文字発見から送り終わりまでを記録し,シリアルモニタに出力し,また受信した文字とビット配列を記録し,それもシリアルモニタに出力した.
+そのような試行を20回行った.
+しかし球のシステムのセンサが1回も反応しなかったため,球のセンサの部分のみ手動で記録を行った.
+よって球の受信は球を指定のセンサの場所に送ることができたら受信成功としている.
+表\ref{kekka_seido}が伝達精度,表\ref{kekka_sokudo}が伝達速度の結果の表である.
+
+
+またわかりやすさをはかるために既存技術であるモールス信号と本システムを比較した.
+方法としてはモールス信号について5分間説明を行い,その後実際にモールス信号の書き取りをしてもらう.
+それを音,光,球のシステムでもそれぞれ行う.
+被験者の条件はモールス信号について詳しくなく,本システムについても詳しくないということである.
+今回10人に協力してもらった.
+結果は表\ref{kekka_wakaru}の通りである.
+
+
+
+\begin{table}
+\caption{伝達精度の結果}
+
+\begin{tabular}{|c|c|c|c|c|c|c|} 
+\hline % 横線
+　 & 音の送信 & 音の受信& 光の送信 & 光の受信 & 球の送信 & 球の受信 \\
+\hline % 横線
+1回目 & chiba & chiba & chiba & chiba & chiba & chiba \\
+2回目 & chiba & ZSUBba & ZSUBba & ZSUBba & ZSUBba & ZSUBba \\
+3回目 & chiba & chjXCAN & chjXCAN & chjXCAN & chjXCAN & chjXCAN \\
+4回目 & chiba & giibe & giibe & giibe & giibe & giibe \\
+5回目 & chiba & chiba & chiba & chiba & chiba & chiba \\
+6回目 & chiba & chiba & chiba & chiba & chiba & chiba \\
+7回目 & chiba & chife & chife & chife & chife & chife \\
+8回目 & chiba & chiba & chiba & chiba & chiba & chiba \\
+9回目 & chiba & chiba & chiba & chiba & chiba & chiba \\
+10回目 & chiba & chiba & chiba & chiba & chiba & chiba \\
+11回目 & chiba & chibBEL & chibBEL & chibBEL & chibBEL & chibBEL \\
+12回目 & chiba & chiba & chiba & chiba & chiba & chiba \\
+13回目 & chiba & chiba & chiba & chiba & chiba & chiba \\
+14回目 & chiba & aj)ba & aj)ba & aj)ba & aj)ba & aj)ba \\
+15回目 & chiba & chiba & chiba & chiba & chiba & chiba \\
+16回目 & chiba & chiba & chiba & chiba & chiba & chiba \\
+17回目 & chiba & chiba & chiba & chiba & chiba & chiba \\
+18回目 & chiba & chiba & chiba & chiba & chiba & chiba \\
+19回目 & chiba & chiba & chiba & chiba & chiba & chiba \\
+20回目 & chiba & chiba & chiba & chiba & chiba & chiba \\
+
+\hline % 横線
+\end{tabular}
+
+\label{kekka_seido}
+\end{table}
+
+\begin{table}
+\caption{伝達速度の結果}
+\tiny
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|} 
+\hline % 横線
+　 & 音の伝達速度  (8文字) [ms] & 光の伝達速度(7文字) [ms] & 球の伝達速度(7文字)[ms] & 音の伝達速度(1文字)[ms] & 光の伝達速度(1文字)[ms] & 球の伝達速度(1文字)[ms] & 合計速度(1文字)[ms] \\
+\hline % 横線
+1回目 & 19806 & 5730 & 29090 & 2475.7 & 818.5 & 4155.7 & 7449.9 \\
+2回目 & 19806 & 5710 & 29090 & 2475.7 & 815.7 & 4155.7 & 7447.1 \\
+3回目 & 19823 & 5708 & 31350 & 2477.8 & 815.8 & 4478.5 & 7771.7 \\
+4回目 & 19799 & 5712 & 29093 & 2474.8 & 816.4 & 4156.1 & 7446.9 \\
+5回目 & 19830 & 5735 & 29090 & 2478.7 & 819.0 & 4155.7 & 7453.6 \\
+6回目 & 19825 & 5716 & 29092 & 2478.1 & 816.2 & 4156.0 & 7450.6 \\
+7回目 & 19820 & 5706 & 29094 & 2477.5 & 815.5 & 4156.2 & 7448.8 \\
+8回目 & 19774 & 5728 & 29090 & 2471.7 & 818.1 & 4155.7 & 7445.6 \\
+9回目 & 19837 & 5730 & 29091 & 2479.6 & 818.5 & 4155.8 & 7453.9 \\
+10回目 & 19803 & 5700 & 29090 & 2475.3 & 814.2 & 4155.7 & 7445.2 \\
+11回目 & 19810 & 5747 & 29092 & 2476.2 & 821.0 & 4156.0 & 7453.3 \\
+12回目 & 19833 & 5706 & 29090 & 2479.1 & 815.1 & 4155.7 & 7449.9 \\
+13回目 & 19802 & 5709 & 29090 & 2475.2 & 815.5 & 4155.7 & 7446.4 \\
+14回目 & 19831 & 5859 & 29088 & 2478.8 & 837.0 & 4155.4 & 7471.2 \\
+15回目 & 19806 & 5733 & 29090 & 2475.7 & 819.0 & 4155.7 & 7450.4 \\
+16回目 & 19799 & 5692 & 29090 & 2474.8 & 813.1 & 4155.7 & 7443.6 \\
+17回目 & 19824 & 5732 & 29090 & 2478.0 & 818.8 & 4155.7 & 7452.5 \\
+18回目 & 19823 & 5737 & 29090 & 2477.8 & 819.5 & 4155.7 & 7453.0 \\
+19回目 & 19797 & 5700 & 29091 & 2474.6 & 814.2 & 4155.8 & 7444.6 \\
+20回目 & 19832 & 5724 & 29092 & 2479.0 & 817.7 & 4156.0 & 7452.7 \\
+\hline % 横線
+\end{tabular}
+
+\label{kekka_seido}
+\end{table}
+
+
+\begin{figure}[htbp]
+\caption{わかりやすさの結果}
+\begin{center}
+\includegraphics[width=\textwidth, clip]{image/kekka_waka.png}
+\label{kekka_wakaru}
+\end{center}
+\end{figure}

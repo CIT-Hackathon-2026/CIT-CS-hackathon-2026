@@ -1,0 +1,249 @@
+\section{おわりに}
+本提案では,学校などの教育現場で情報通信,特に無線通信をわかりやすく可視化・可聴化して学ぶことを目的として,スピーカー,LED,球を使用した無線通信の伝達システムを開発した.
+試行を行い,各センサなどから文字の伝達速度,伝達精度を算出した.
+それらを使用して伝達システムを検証したところ,音の伝達精度や球の伝達速度は目標に達成しなかったが光のシステムと音の伝達速度,球の伝達精度は目標を達成できた.
+また音と球の書き取り精度も目標を達成でき,モールス信号という既存の技術よりも教育に活かせることが明らかになった.
+しかし球の照度センサが反応しないことは課題である.
+そこで球が穴の真上を通過するために道幅の縮小や角度の調整を行ってセンサを動作させることが必要である.
+他にも目標を達成できなかった箇所に前述した改善を行うべきだ.
+それらを行えば十分に教育現場での使用が可能になると考えられる.
+
+
+
+
+% --- プログラム表示の設定 ---
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  frame=single,
+  breaklines=true,
+  tabsize=2,
+  showstringspaces=false,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  stringstyle=\color{orange},
+  language=C, % 適宜変更（C, Python, Java など）
+}
+
+
+
+% --- 付録 ---
+\appendix
+\section{付録}
+
+以下に本システムで使用したプログラムを記す.
+
+
+\begin{lstlisting}[caption=Transmission of sound,label=lst:led]
+#include <MozziGuts.h>
+#include <Oscil.h>
+#include <tables/sin2048_int8.h>
+
+#define CONTROL_RATE 64
+
+Oscil<SIN2048_NUM_CELLS, AUDIO_RATE> aOscil(SIN2048_DATA);
+
+const int baseFreqs[4] = {440, 494, 523, 587};  // 4 base frequencies
+
+const unsigned long noteOnDuration = 500;   // Duration of tone (ms)
+const unsigned long noteOffDuration = 250;  // Silence duration (ms)
+
+String inputBuffer = "";
+int currentIndex = 0;
+bool isPlaying = false;
+
+enum PlayPhase {
+  PHASE_FIRST_FREQ,
+  PHASE_SILENCE_1,
+  PHASE_SECOND_FREQ,
+  PHASE_SILENCE_2,
+  PHASE_NEXT_CHAR
+};
+
+PlayPhase playPhase = PHASE_FIRST_FREQ;
+unsigned long phaseStartTime = 0;
+
+byte currentHighNibble = 0;
+byte currentLowNibble = 0;
+
+// Current frequency within the phase (0 = silence)
+int currentFreq = 0;
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Please input text:");
+  startMozzi(CONTROL_RATE);
+  aOscil.setFreq(0);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Transmission of sound,label=lst:led]
+#include <MozziGuts.h>
+#include <Oscil.h>
+#include <tables/sin2048_int8.h>
+
+#define CONTROL_RATE 64
+
+Oscil<SIN2048_NUM_CELLS, AUDIO_RATE> aOscil(SIN2048_DATA);
+
+const int baseFreqs[4] = {440, 494, 523, 587};  // 4 base frequencies
+
+const unsigned long noteOnDuration = 500;   // Duration of tone (ms)
+const unsigned long noteOffDuration = 250;  // Silence duration (ms)
+
+String inputBuffer = "";
+int currentIndex = 0;
+bool isPlaying = false;
+
+enum PlayPhase {
+  PHASE_FIRST_FREQ,
+  PHASE_SILENCE_1,
+  PHASE_SECOND_FREQ,
+  PHASE_SILENCE_2,
+  PHASE_NEXT_CHAR
+};
+
+PlayPhase playPhase = PHASE_FIRST_FREQ;
+unsigned long phaseStartTime = 0;
+
+byte currentHighNibble = 0;
+byte currentLowNibble = 0;
+
+// Current frequency within the phase (0 = silence)
+int currentFreq = 0;
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Please input text:");
+  startMozzi(CONTROL_RATE);
+  aOscil.setFreq(0);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Transmission of sound,label=lst:led]
+#include <MozziGuts.h>
+#include <Oscil.h>
+#include <tables/sin2048_int8.h>
+
+#define CONTROL_RATE 64
+
+Oscil<SIN2048_NUM_CELLS, AUDIO_RATE> aOscil(SIN2048_DATA);
+
+const int baseFreqs[4] = {440, 494, 523, 587};  // 4 base frequencies
+
+const unsigned long noteOnDuration = 500;   // Duration of tone (ms)
+const unsigned long noteOffDuration = 250;  // Silence duration (ms)
+
+String inputBuffer = "";
+int currentIndex = 0;
+bool isPlaying = false;
+
+enum PlayPhase {
+  PHASE_FIRST_FREQ,
+  PHASE_SILENCE_1,
+  PHASE_SECOND_FREQ,
+  PHASE_SILENCE_2,
+  PHASE_NEXT_CHAR
+};
+
+PlayPhase playPhase = PHASE_FIRST_FREQ;
+unsigned long phaseStartTime = 0;
+
+byte currentHighNibble = 0;
+byte currentLowNibble = 0;
+
+// Current frequency within the phase (0 = silence)
+int currentFreq = 0;
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Please input text:");
+  startMozzi(CONTROL_RATE);
+  aOscil.setFreq(0);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Transmission of sound,label=lst:led]
+#include <MozziGuts.h>
+#include <Oscil.h>
+#include <tables/sin2048_int8.h>
+
+#define CONTROL_RATE 64
+
+Oscil<SIN2048_NUM_CELLS, AUDIO_RATE> aOscil(SIN2048_DATA);
+
+const int baseFreqs[4] = {440, 494, 523, 587};  // 4 base frequencies
+
+const unsigned long noteOnDuration = 500;   // Duration of tone (ms)
+const unsigned long noteOffDuration = 250;  // Silence duration (ms)
+
+String inputBuffer = "";
+int currentIndex = 0;
+bool isPlaying = false;
+
+enum PlayPhase {
+  PHASE_FIRST_FREQ,
+  PHASE_SILENCE_1,
+  PHASE_SECOND_FREQ,
+  PHASE_SILENCE_2,
+  PHASE_NEXT_CHAR
+};
+
+PlayPhase playPhase = PHASE_FIRST_FREQ;
+unsigned long phaseStartTime = 0;
+
+byte currentHighNibble = 0;
+byte currentLowNibble = 0;
+
+// Current frequency within the phase (0 = silence)
+int currentFreq = 0;
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Please input text:");
+  startMozzi(CONTROL_RATE);
+  aOscil.setFreq(0);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Transmission of sound,label=lst:led]
+#include <MozziGuts.h>
+#include <Oscil.h>
+#include <tables/sin2048_int8.h>
+
+#define CONTROL_RATE 64
+
+Oscil<SIN2048_NUM_CELLS, AUDIO_RATE> aOscil(SIN2048_DATA);
+
+const int baseFreqs[4] = {440, 494, 523, 587};  // 4 base frequencies
+
+const unsigned long noteOnDuration = 500;   // Duration of tone (ms)
+const unsigned long noteOffDuration = 250;  // Silence duration (ms)
+
+String inputBuffer = "";
+int currentIndex = 0;
+bool isPlaying = false;
+
+enum PlayPhase {
+  PHASE_FIRST_FREQ,
+  PHASE_SILENCE_1,
+  PHASE_SECOND_FREQ,
+  PHASE_SILENCE_2,
+  PHASE_NEXT_CHAR
+};
+
+PlayPhase playPhase = PHASE_FIRST_FREQ;
+unsigned long phaseStartTime = 0;
+
+byte currentHighNibble = 0;
+byte currentLowNibble = 0;
+
+// Current frequency within the phase (0 = silence)
+int currentFreq = 0;
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Please input text:");
+  startMozzi(CONTROL_RATE);
+  aOscil.setFreq(0);
+}
+\end{lstlisting}
