@@ -1,0 +1,96 @@
+This is e-upTeX, Version 3.141592653-p4.1.1-u1.30-230214-2.6 (utf8.uptex) (TeX Live 2024) (preloaded format=uplatex 2024.5.22)  28 NOV 2025 15:20
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**template.tex
+(./template.tex
+pLaTeX2e <2023-02-14u04>+1, based on
+LaTeX2e <2023-11-01> patch level 1
+L3 programming layer <2024-04-11>
+(/usr/local/texlive/2024/texmf-dist/tex/latex/jlreq/jlreq.cls
+Document Class: jlreq 2024/02/16 jlreq
+(/usr/local/texlive/2024/texmf-dist/tex/latex/l3packages/l3keys2e/l3keys2e.sty
+(/usr/local/texlive/2024/texmf-dist/tex/latex/l3kernel/expl3.sty
+Package: expl3 2024-04-11 L3 programming layer (loader) 
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/l3backend/l3backend-dvipdfmx.def
+File: l3backend-dvipdfmx.def 2024-04-11 L3 backend support: dvipdfmx
+\g__graphics_track_int=\count188
+\l__pdf_internal_box=\box68
+\g__pdf_backend_annotation_int=\count189
+\g__pdf_backend_link_int=\count190
+))
+Package: l3keys2e 2024-03-14 LaTeX2e option processing using LaTeX3 keys
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+Package: etoolbox 2020/10/05 v2.5k e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count191
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/jlreq/jlreq-helpers.sty
+Package: jlreq-helpers 2024/02/13 jlreq-helpers
+\jlreq@tempcnta=\count192
+\jlreq@tempcntb=\count193
+\jlreq@tempcntc=\count194
+\jlreq@tempdima=\dimen156
+\jlreq@tempdimb=\dimen157
+\jlreq@tempdimc=\dimen158
+\jlreq@tempskipa=\skip48
+\jlreq@tempskipb=\skip49
+\jlreq@tempskipc=\skip50
+\jlreq@tempboxa=\box69
+\jlreq@tempboxb=\box70
+\jlreq@tempboxc=\box71
+\jlreq@resultdimen=\dimen159
+\jlreq@resultskip=\skip51
+\jlreq@resultbox=\box72
+\jlreq@resultcnt=\count195
+\jlreq@reference@count=\count196
+\jlreq@currentpage=\count197
+)
+\l__jlreq_tmpa_int=\count198
+\l__jlreq_tmpa_dim=\dimen160
+\l_jlreq_tmpa_skip=\skip52
+\l_jlreq_tmpa_box=\box73
+\l_jlreq_tmpb_box=\box74
+\l_jlreq_tmpc_box=\box75
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/everyhook/everyhook.sty
+(/usr/local/texlive/2024/texmf-dist/tex/latex/svn-prov/svn-prov.sty
+Package: svn-prov 2010/04/24 v3.1862 Package Date/Version from SVN Keywords
+)
+Package: everyhook 2014/11/26 v1.2 (SVN Rev: 12)\ Hooks for low level TeX every
+X primitives.
+\everypar=\toks18
+\frozen@everymath=\toks19
+\frozen@everydisplay=\toks20
+\everyhbox=\toks21
+\everyvbox=\toks22
+\everycr=\toks23
+)
+\jlreq@current@linewidth=\dimen161
+\jlreq@rest@linewidth=\dimen162
+\jlreq@lastnodechar=\count199
+\jlreq@fontsize=\dimen163
+\jlreq@jafontsize=\dimen164
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/lm/lmodern.sty
+Package: lmodern 2015/05/01 v1.6.1 Latin Modern Fonts
+LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
+(Font)                  OT1/cmr/m/n --> OT1/lmr/m/n on input line 22.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `normal'
+(Font)                  OML/cmm/m/it --> OML/lmm/m/it on input line 23.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
+(Font)                  OMS/cmsy/m/n --> OMS/lmsy/m/n on input line 24.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
+(Font)                  OMX/cmex/m/n --> OMX/lmex/m/n on input line 25.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 26.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `bold'
+(Font)                  OML/cmm/b/it --> OML/lmm/b/it on input line 27.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
+(Font)                  OMS/cmsy/b/n --> OMS/lmsy/b/n on input line 28.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
+(Font)                  OMX/cmex/m/n --> OMX/lmex/m/n on input line 29.
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 31.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
+(Font)                  OT1/cmss/m/n --> OT1/lmss/m/n on in

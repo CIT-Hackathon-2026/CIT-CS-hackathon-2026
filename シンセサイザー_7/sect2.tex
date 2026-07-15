@@ -1,0 +1,360 @@
+\section{作成したシステムの概要}
+実際に作成したシステムの概要について以下に示す.
+
+\subsection{音のシステム}
+\subsubsection{システムの概要}
+まず1つ目の伝達システムは音を使用したシステムである.
+このシステムは図\ref{otogai}の概念図で示されるようにスピーカーとマイクを使用し可聴範囲内の周波数を使用して文字を伝達するものである.
+実際の回路は図\ref{otokai}である.
+ここでは440 Hz,494 Hz,523 Hz,587 Hzのピアノで表すとラ,シ,ド,レの4つの音を4進数に割り当てて鳴らすことで情報伝達を行っている.
+音の高さを聞き取るには最小で0.5サイクル必要であり,今回の周波数では最大で1.1 msである\cite{nagasa}.
+また人の速記の速さは最も簡単な速記検定6級で5分間に400文字である\cite{sokki}.
+これは1文字750 msである.
+よって1つの音を再生する時間は500 ms,音の間の無音時間は250 msとした.
+楽音を鳴らすことによって聞いている側が聞いていて楽しくなっている.
+まず送信側ではシリアルモニタに入力された文字をArduinoがASCIIコードに変換して,それを更に4進数に変換しMozziライブラリで音を鳴らす\cite{mozzi}.
+4進数であるので2音で1文字を表現する.
+また今回使用しているダイナミックスピーカーはArduinoから直接電気を送ると電圧が足りず動かないため9V電池を使用している.
+そして受信側では送られてきた音をマイクアンプモジュールで受け取り,FFTを行いノイズを除去し周波数を抽出する.
+その後2つの連続した音のビット値を復元すると1文字が得られる.
+ナイキストの定理よりサンプリング周波数は最大周波数の2倍以上必要である.
+このシステムで使われる最大周波数が587 Hzなので,その2倍は1174 Hzである.
+それとFFTの精度を考慮しサンプリング周波数は5000 Hzとした.
+FFTのポイント数を512にした.
+今回のシステムで使用する周波数間の差は最小で29 Hzであり,サンプリング周波数が5000 Hzなので、FFTの分解能が9.77 Hzとなる.
+これは各周波数を分離するのに十分である.
+またFFTのピーク振幅で無音と判定する閾値を2000にした.
+これは実際にマイクを使用したときにノイズが最大で1700 Hzほどであったからだ.
+このシステムは図\ref{updateControl}と図\ref{resetDetection}と図\ref{loop_2}のフローチャートで表される.
+図\ref{updateControl}に表される関数はMozziライブラリによって呼び出される音の生成を制御する関数である.
+シリアルポートからの新しい入力を分解し,周波数に変換して音を鳴らすフェーズ管理を行っている.
+図\ref{loop_2}に表される関数は音の信号の受信と解析を管理している.
+アナログピンから音を収集し,FFTを行って周波数を分析しASCIIコードに復元している.
+図\ref{resetDetection}に表される関数は周波数検出の状態をリセットする関数である.
+カウンターと情報を初期状態に戻している.
+
+
+このシステムは可聴音で情報伝達の状態を直接聞くことができるため,音響通信の聞こえないため何が行われているかわからないという課題を解決している.
+音階にすることで聞き馴染みのある音になっている.
+またMozziライブラリを使用することにより従来の複雑な外部クロックやオーディオICに頼ることのないシンプルな構造になっている.
+そしてこの音のシステムの設計と実装,検証作業はチームの足立が主に担当した.
+
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[bb=0 0 535 693, width=\linewidth]{image/sound_gainen.jpeg}
+\caption{音のシステムの概念図}
+\label{otogai}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[bb=0 0 600 400, width=\linewidth]{image/sound_kairozu.jpg}
+\caption{音のシステムの配線}
+\label{otokai}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.7\textwidth, clip]{image/updateControl.drawio.png}
+\caption{updateControl()関数のフローチャート}
+\label{updateControl}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.5\textwidth, clip]{image/resetDetection().drawio.png}
+\caption{resetDetection()関数のフローチャート}
+\label{resetDetection}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.55\textwidth, clip]{image/loop()_2.drawio.png}
+\caption{音の受信と光の送信のloop()関数のフローチャート}
+\label{loop_2}
+\end{center}
+\end{figure}
+
+\subsection{光のシステム}
+\subsubsection{システムの概要}
+
+2つ目の伝達システムは光を使用したシステムである.
+このシステムは図\ref{hikagai}の概念図で表されるようにLEDと照度センサを使用し可視範囲内の光を使用して文字を伝達するものである.
+回路図は図\ref{hikarikai}である.
+ここでは消灯を0,点灯を1として2進数として情報伝達を行っている.
+LEDの色は赤色で見ていて興奮する,印象に残りやすい色のため教育の暗記において良い色を使用している\cite{iro}.
+まず送信側では音のシステムの受信で入力された4進数を2進数に変換しLEDに点灯と消灯の指示を送る.
+2進数であるので8回の点滅で1文字を表現している.
+またLEDにつなげる抵抗は300 $Ω$とし電流が最大値にならない明瞭な点滅ができるような値に調整した.
+そして受信側では送られてきた光を照度センサでアナログ電圧として受け取り,Arduinoに設定した閾値によって0,1に分ける.
+その後8つの連続した光のビット値を復元すると1文字が得られる.
+照度センサの閾値は935とした.
+理由は実際にシステムを動作させたところ遮光状態でアナログピンの値が600程度になり,LEDを光らせると1000近くになった.
+閾値を935にすると環境光による誤判定が行われなかったためである.
+そしてピットごとの読み取り間隔は10 Hzにした.
+理由は人間が明らかな点滅として感じられる点滅速度は40 Hz程度からであり,今回は確実に認識するためその値を大幅に下回ることにした\cite{tira}.
+このシステムは図\ref{signal}と図\ref{detectlight},図\ref{flash},図\ref{groupbits},図\ref{endcheck},図\ref{loop_3}のフローチャート,そして図\ref{loop_2}のフローチャートで表される.
+図\ref{signal}に表される関数は音の受信部で復元されたビット配列のデータを光信号として送信する関数である.
+開始信号,データに応じたHIGHとLOWの切り替え,終了信号の送信を行っている.
+図\ref{loop_2}に表される関数内で音の受信と復元が終了した後,光の送信へと移行している.
+図\ref{detectlight}に表される関数は開始信号の検出の関数である.
+光センサで設定した開始信号の光の信号が検出されたかを判断している.
+図\ref{flash}に表される関数は光の信号を受信する関数である.
+光センサの値を読み取り閾値を超えているかでビットの解釈を行いsign配列に格納している.
+図\ref{groupbits}に表される関数はflash()関数で受信したビット列を7ビットごとのまとまりに変換する関数である.
+図\ref{endcheck}に表される関数は受信した光信号の配列に終了信号が含まれているか判断する関数である.
+図\ref{loop_3}に表される関数では上記の関数を実際に動かして光の信号の受信を行っている関数である.
+
+
+このシステムは可視光線で情報伝達の状態を直接見ることができるため,赤外線通信の見えないため何が行われているかわからないという課題を解決している.
+またシステムの精度をあげるためにビットの開始を表すプレアンブル信号を各文字の前に送信しており,受信側の開始前に開始してしまったというミスを削減している.
+そしてこの光のシステムの設計と実装,検証作業は上坂が担当した.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[bb=0 0 1111 833, width=\linewidth]{image/light_gainen.jpeg}
+\caption{光のシステムの概念図}
+\label{hikagai}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth, clip]{image/light_kairozu.pdf}
+\caption{光のシステムの回路図}
+\label{hikarikai}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth, clip]{image/signal().drawio.png}
+\caption{signal()関数のフローチャート}
+\label{signal}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.8\textwidth, clip]{image/detectlight().drawio.png}
+\caption{detectlight()関数のフローチャート}
+\label{detectlight}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.6\textwidth, clip]{image/flash().drawio.png}
+\caption{flash()関数のフローチャート}
+\label{flash}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth, clip]{image/groupbits().drawio.png}
+\caption{groupbits()関数のフローチャート}
+\label{groupbits}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth, clip]{image/endcheck().drawio.png}
+\caption{endcheck()関数のフローチャート}
+\label{endcheck} 
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.25\textwidth]{image/loop()_3.drawio.png}
+\caption{光の受信と球の送信のloop()関数のフローチャート}
+\label{loop_3}
+\end{center} 
+\end{figure}
+
+
+\subsection{球のシステム}
+\subsubsection{システムの概要}
+
+最後の3つ目の伝達システムは球を使用したシステムである.
+このシステムは図\ref{ballgai}の概念図で表されるように球と照度センサ,サーボモーターを使用し球の落下と移動によって文字を伝達するものである.
+球の射出の概念図は図\ref{ballsya}で段差によって止められている球をサーボモータが押し出す.
+このときサーボモータについている厚紙が次の球が隙間に落ちたり,2球同時に射出されないようにストッパーの役割を担っている.
+球の分岐の概念図は図\ref{ballbunki}であり,サーボモータについた木材がルートではない道を塞ぐことでルートを作っている.
+また木材が道より長いためサーボモータの静止角度に誤差が生じても一定は許容できるようになっている.
+球の通過判別の概念図は図\ref{ballsensa}であり,球がセンサの上を通り光が入らなくなり暗くなることでセンサが反応する.
+送信システムの回路図は図\ref{ballmkai}である.
+そして受信システムの回路図は図\ref{ballskai}である.
+ここでは照度センサ8つを8進数の0から7に見立てて情報伝達を行っている.
+球がその照度センサの上部を通過することによって暗いと1,明るいと0としている.
+これはこのシステム全体で最も直感的にわかりやすいシステムとして設計がされている.
+まず送信側ではArduinode送られてきた2進数を8進数に変換し,サーボモーターにて数字に応じた進路に球を分岐させることと,1球送り出すことを行っている.
+8進数であるので2球で1文字を表現している.
+ルート設定の後,球を射出する前に1000 msの待機時間を設けている.
+これは実際にシステムを動作させたところ,ルート構築の時間の分だけ球の射出とルート分岐のサーボモーターの動作時間がずれてしまったからである.
+球の射出後からルートをリセットするまでに1200 msの待機時間を設けている.
+これは分岐を行ってから球が転がり終わるまでに1100 msほどかかるため,転がり終わるのを待つためである.
+そして受信側では送られてきた球が照度センサ上部の穴を塞ぐことによってデジタルピンにさした照度センサが1をArduinoに返すことで数値を受け取る.
+その後連続した2球のビット値を復元すると1文字が得られる.
+また照度センサの上部のみから光を受け取るために照度センサを黒くしたストローで覆い,下を閉じて球の落下する穴以外から光が入ることを防いでいる.
+このシステムは図\ref{reset_servo}と図\ref{select_servo},図\ref{route},図\ref{shoot},図\ref{plot},図\ref{combine},図\ref{stx},図\ref{txt},図\ref{cut},図\ref{sense}のフローチャート,そして図\ref{loop_3}のフローチャートで表される.
+図\ref{reset_servo}に表される関数はすべてのサーボモータを初期位置にリセットする関数である.
+図\ref{select_servo}に表される関数は指定されたサーボモータを指定された角度に動かす関数である.
+図\ref{route}に表される関数は球のシステムの通路を作る関数である.
+送るルートに合わせたサーボモータを動かし球が特定のルートを通るようにしている.
+図\ref{shoot}に表される関数は球を転がす一連の動作を実行する関数である.
+route()関数などを実際に動かしている.
+図\ref{plot}に表される関数は球のシステム全体の一連の動作を実行する関数である.
+開始信号の送信やshoot()関数の呼び出し,終了信号の送信を行っている.
+図\ref{combine}に表される関数は受信した光の信号のビット配列を球のシステムで制御できるようにする関数である.
+7ビットの2進数のデータを8進数に変換し,shoot()関数に渡せるようにしている.
+図\ref{stx}に表される関数は開始信号を識別する関数である.
+照度センサにて検出した値が開始信号と一致するか判断している.
+図\ref{txt}に表される関数は実際の文字データと終了信号を識別する関数である.
+検出した値をwritten配列に格納し,終了信号と一致するか判断している.
+図\ref{cut}に表される関数は受信したビット列を7ビットずつに分割しwrote配列に格納する関数である.
+これで受信したデータをASCIIコードに対応する値に変換する.
+図\ref{sense}に表される関数は8つのデジタルピンで閾値以下になったピンの番号を返す関数である.
+球がどの分岐点を通ったかを検出している.
+
+
+このシステムはピタゴラスイッチに見られるような物理的な動作を情報伝達手段へと応用したため,とても独自性が高いと言える.
+一方で音や光のシステムと比較すると物理的妨害を受けやすく球の補充が必要な点は短所である.
+そしてこの光のシステムのハードウェアの設計と実装,検証作業は米津が担当し,ソフトウェアの設計と実装,検証作業は主に藤本が担当した.
+
+
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth,clip]{image/ball_gainen.PNG}
+\caption{球のシステムの概念図}
+\label{ballgai}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth, clip]{image/ball_syasyutu.PNG}
+\caption{球の射出の概念図}
+\label{ballsya}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth, clip]{image/ball_bunki.PNG}
+\caption{球の分岐の概念図}
+\label{ballbunki}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth, clip]{image/ball_sensa.PNG}
+\caption{球の通過判別の概念図}
+\label{ballsensa}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth, clip]{image/ball_m_kairozu.pdf}
+\caption{球の送信システムの回路図}
+\label{ballmkai}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth, clip]{image/ball_s_kairozu.pdf}
+\caption{球の受信システムの回路図}
+\label{ballskai}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.7\textwidth, clip]{image/reset_servo().drawio.png}
+\caption{resetservo()関数のフローチャート}
+\label{reset_servo}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth, clip]{image/select_servo().drawio.png}
+\caption{selectservo()関数のフローチャート}
+\label{select_servo}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth, clip]{image/route().drawio.png}
+\caption{route()関数のフローチャート}
+\label{route}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.5\textwidth, clip]{image/shoot().drawio.png}
+\caption{shoot()関数のフローチャート}
+\label{shoot}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.5\textwidth, clip]{image/plot().drawio.png}
+\caption{plot()関数のフローチャート}
+\label{plot}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth, clip]{image/combine().drawio.png}
+\caption{combine()関数のフローチャート}
+\label{combine}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.8\textwidth, clip]{image/stx().drawio.png}
+\caption{stx()関数のフローチャート}
+\label{stx}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.7\textwidth, clip]{image/txt().drawio.png}
+\caption{txt()関数のフローチャート}
+\label{txt}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth, clip]{image/cut().drawio.png}
+\caption{cut()関数のフローチャート}
+\label{cut}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.45\textwidth, clip]{image/sense().drawio.png}
+\caption{sense()関数のフローチャート}
+\label{sense}
+\end{center}
+\end{figure}
